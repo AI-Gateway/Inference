@@ -1,11 +1,18 @@
 import paho.mqtt.client as mqtt
 import logging
 from time import sleep
+from datetime import datetime
+from datetime import timedelta
 
 measurement_grouper = {}
 machine_id = 111
 host = '127.0.0.1'
 port = 10001
+
+logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)-15s %(levelname)-8s %(message)s",
+    )
 logger = logging.getLogger(__name__)
 client_id = machine_id
 hardware_serial_numbers = ['xxxxxx', 'yyyyyy', 'zzzzzz']
@@ -29,6 +36,7 @@ class MQTTGrouper:
 		self.client.on_disconnect = self.mqtt_reconnect
 		self.logger = logger
 		self.measurement_grouper = {}
+		self.dates_last_update = {}
 
 
 	def connect(self):
@@ -36,7 +44,7 @@ class MQTTGrouper:
 		while not exit:
 			try:
 				self.client.connect(host, port)
-				self.logger.error(f'MQTT-Grouper-{machine_id} connected')
+				self.logger.info(f'MQTT-Grouper-{machine_id} connected')
 				exit = True
 			except Exception as e:
 				self.logger.error(f'MQTT-Grouper-{machine_id} connect error, retrying in 10 seconds')
@@ -45,7 +53,7 @@ class MQTTGrouper:
 
 		for serial in self.hardware_serial_numbers:
 			topic = f'networks/{network_id}/devices/wivers/{serial}/uq'
-			self.logger.error(f'MQTT-Grouper-{machine_id} subscribed to {topic}')
+			self.logger.info(f'MQTT-Grouper-{machine_id} subscribed to {topic}')
 			self.client.subscribe(topic, 2)
 
 
@@ -55,8 +63,16 @@ class MQTTGrouper:
 		return payload
 
 	def dates_clean_stale(self):
-		# TODO: Should clean old dates that didnt complete the measurement
-		return
+		current = datetime.now()
+		stale_dates = []
+		for date in self.dates_last_update:
+			if (current-self.dates_last_update[date]) >= timedelta(minutes=10):
+				stale_dates += [date]
+
+		for date in stale_dates:
+			del self.dates_last_update[date]
+			del self.measurement_grouper[date]
+
 
 	def dates_add(self, date, device, payload):
 		
@@ -67,6 +83,7 @@ class MQTTGrouper:
 			self.logger.error(f'MQTT-Grouper-{machine_id} received duplicate report for date {date}')
 		
 		self.measurement_grouper[date][device] = payload
+		self.dates_last_update[date] = datetime.now()
 
 	def dates_check_complete(self):
 		complete_dates = []
@@ -79,39 +96,26 @@ class MQTTGrouper:
 	def dates_process_complete_dates(self, dates):
 	
 		for date in dates:
-			self.logger.error(f'MQTT-Grouper-{self.machine_id} sending date {date} with data: {self.measurement_grouper[date]}')
+			self.logger.info(f'MQTT-Grouper-{self.machine_id} sending date {date} with data: {self.measurement_grouper[date]}')
 			# TODO: Send measurement group to celery or task distributer.
 			del self.measurement_grouper[date]
+			del self.dates_last_update[date]
 
 
 	def mqtt_receive(self, topic, payload, qos):
-		print(f"Received a message at {topic}:{qos}")
-		print('Payload:')
-		print(payload)
-		print('')
+		self.logger.info(f"Received a message at {topic}:{qos} with payload: {payload}")
 
 		date = self.get_report_date(payload)
 		device = topic.split('/')[-2]
 
-		print('Cleaning stale dates')
-		self.dates_clean_stale()
-		print(self.measurement_grouper)
-		print('')
-
-		print('Adding date')
 		self.dates_add(date, device, payload)
-		print(self.measurement_grouper)
-		print('')
 
-		print('Checking complete_dates')
+		self.dates_clean_stale()
+
 		complete_dates = self.dates_check_complete()
-		print(complete_dates)
-		print('')
 
-		print('Processing complete_dates')
 		self.dates_process_complete_dates(complete_dates)
-		print(self.measurement_grouper)
-		print('')
+
 
 
 	def mqtt_reconnect(self, client, userdata, rc):
@@ -126,7 +130,7 @@ class MQTTGrouper:
 				sleep(10)
 
 	def loop(self):
-		self.logger.error(f'MQTT-Grouper-{machine_id} loop starting')
+		self.logger.info(f'MQTT-Grouper-{machine_id} loop starting')
 		self.client.loop_forever()
 
 
