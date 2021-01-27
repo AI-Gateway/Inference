@@ -3,6 +3,7 @@ import logging
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
+from tasks import process_new_measurement
 
 measurement_grouper = {}
 machine_id = 111
@@ -37,6 +38,7 @@ class MQTTGrouper:
 		self.logger = logger
 		self.measurement_grouper = {}
 		self.dates_last_update = {}
+		self.last_sent_date = None
 
 
 	def connect(self):
@@ -75,6 +77,9 @@ class MQTTGrouper:
 
 
 	def dates_add(self, date, device, payload):
+
+		if self.last_sent_date is not None and date < self.last_sent_date:
+			return False
 		
 		if date not in self.measurement_grouper:
 			self.measurement_grouper[date] = {}
@@ -84,6 +89,7 @@ class MQTTGrouper:
 		
 		self.measurement_grouper[date][device] = payload
 		self.dates_last_update[date] = datetime.now()
+		return True
 
 	def dates_check_complete(self):
 		complete_dates = []
@@ -94,23 +100,28 @@ class MQTTGrouper:
 		return complete_dates
 
 	def dates_process_complete_dates(self, dates):
-	
+		dates.sort()
 		for date in dates:
 			self.logger.info(f'MQTT-Grouper-{self.machine_id} sending date {date} with data: {self.measurement_grouper[date]}')
 			# TODO: Send measurement group to celery or task distributer.
+			process_new_measurement.delay({date:self.measurement_grouper[date]})
+			self.last_sent_date = date
 			del self.measurement_grouper[date]
 			del self.dates_last_update[date]
 
 
 	def mqtt_receive(self, topic, payload, qos):
 		self.logger.info(f"Received a message at {topic}:{qos} with payload: {payload}")
-
+		payload = payload.decode('utf-8')
 		date = self.get_report_date(payload)
 		device = topic.split('/')[-2]
 
-		self.dates_add(date, device, payload)
-
+		valid = self.dates_add(date, device, payload)
 		self.dates_clean_stale()
+		if valid is not True:
+			return
+
+		
 
 		complete_dates = self.dates_check_complete()
 
