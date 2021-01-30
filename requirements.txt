@@ -5,8 +5,10 @@ click==7.1.2
 click-didyoumean==0.0.3
 click-plugins==1.1.1
 click-repl==0.1.6
+joblib==1.0.0
 kombu==5.0.2
 mmh3==2.5.1
+numpy==1.20.0
 paho-mqtt==1.5.1
 pottery==1.1.1
 prompt-toolkit==3.0.14
