@@ -16,7 +16,7 @@ logging.basicConfig(
     )
 logger = logging.getLogger(__name__)
 client_id = machine_id
-hardware_serial_numbers = ['xxxxxx', 'yyyyyy', 'zzzzzz']
+hardware_serial_numbers = ['bc33acfffe1b3bbc']
 network_id = 'ai-gateway'
 
 class MQTTGrouper:
@@ -46,16 +46,16 @@ class MQTTGrouper:
 		while not exit:
 			try:
 				self.client.connect(host, port)
-				self.logger.info(f'MQTT-Grouper-{machine_id} connected')
+				self.logger.info('MQTT-Grouper-{} connected'.format(machine_id))
 				exit = True
 			except Exception as e:
-				self.logger.error(f'MQTT-Grouper-{machine_id} connect error, retrying in 10 seconds')
+				self.logger.error('MQTT-Grouper-{} connect error, retrying in 10 seconds'.format(machine_id))
 				self.logger.exception(e)
 				sleep(10)
 
 		for serial in self.hardware_serial_numbers:
-			topic = f'networks/{network_id}/devices/wivers/{serial}/uq'
-			self.logger.info(f'MQTT-Grouper-{machine_id} subscribed to {topic}')
+			topic = 'networks/{}/devices/wivers/{}/uq'.format(network_id, serial)
+			self.logger.info('MQTT-Grouper-{} subscribed to {}'.format(machine_id, topic))
 			self.client.subscribe(topic, 2)
 
 
@@ -85,7 +85,7 @@ class MQTTGrouper:
 			self.measurement_grouper[date] = {}
 
 		if device in self.measurement_grouper[date]:
-			self.logger.error(f'MQTT-Grouper-{machine_id} received duplicate report for date {date}')
+			self.logger.error('MQTT-Grouper-{} received duplicate report for date {}'.format(machine_id, date))
 		
 		self.measurement_grouper[date][device] = payload
 		self.dates_last_update[date] = datetime.now()
@@ -102,7 +102,7 @@ class MQTTGrouper:
 	def dates_process_complete_dates(self, dates):
 		dates.sort()
 		for date in dates:
-			self.logger.info(f'MQTT-Grouper-{self.machine_id} sending date {date} with data: {self.measurement_grouper[date]}')
+			self.logger.info('MQTT-Grouper-{} sending date {} with data: {}'.format(self.machine_id,date,self.measurement_grouper[date]))
 			# TODO: Send measurement group to celery or task distributer.
 			process_new_measurement.delay({date:self.measurement_grouper[date]})
 			self.last_sent_date = date
@@ -111,7 +111,7 @@ class MQTTGrouper:
 
 
 	def mqtt_receive(self, topic, payload, qos):
-		self.logger.info(f"Received a message at {topic}:{qos} with payload: {payload}")
+		self.logger.info("Received a message at {}:{} with payload: {}".format(topic,qos,payload))
 		payload = payload.decode('utf-8')
 		date = self.get_report_date(payload)
 		device = topic.split('/')[-2]
@@ -137,11 +137,11 @@ class MQTTGrouper:
 				self.client.reconnect()
 				reconnected = True
 			except Exception as e:
-				self.logger.error(f'MQTT-Grouper-{machine_id} reconnect error, retrying in 10 seconds')
+				self.logger.error('MQTT-Grouper-{} reconnect error, retrying in 10 seconds'.format(machine_id))
 				sleep(10)
 
 	def loop(self):
-		self.logger.info(f'MQTT-Grouper-{machine_id} loop starting')
+		self.logger.info('MQTT-Grouper-{} loop starting'.format(machine_id))
 		self.client.loop_forever()
 
 
