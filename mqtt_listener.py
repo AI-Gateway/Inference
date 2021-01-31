@@ -8,7 +8,7 @@ from tasks import process_new_measurement
 measurement_grouper = {}
 machine_id = 111
 host = '127.0.0.1'
-port = 10001
+port = 1883
 
 logging.basicConfig(
         level=logging.DEBUG,
