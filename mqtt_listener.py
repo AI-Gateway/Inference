@@ -62,7 +62,7 @@ class MQTTGrouper:
 
 	def get_report_date(self, payload):
 		# Should extract date from payload
-		return payload
+		return datetime.now()
 
 	def dates_clean_stale(self):
 		current = datetime.now()
