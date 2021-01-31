@@ -54,7 +54,7 @@ class MQTTGrouper:
 				sleep(10)
 
 		for serial in self.hardware_serial_numbers:
-			topic = 'networks/{}/devices/wivers/{}/uq'.format(network_id, serial)
+			topic = 'networks/{}/devices/wivers/{}/uq/q'.format(network_id, serial)
 			self.logger.info('MQTT-Grouper-{} subscribed to {}'.format(machine_id, topic))
 			self.client.subscribe(topic, 2)
 
@@ -114,7 +114,7 @@ class MQTTGrouper:
 		self.logger.info("Received a message at {}:{} with payload: {}".format(topic,qos,payload))
 		payload = payload.decode('utf-8')
 		date = self.get_report_date(payload)
-		device = topic.split('/')[-2]
+		device = topic.split('/')[-3]
 
 		valid = self.dates_add(date, device, payload)
 		self.dates_clean_stale()
