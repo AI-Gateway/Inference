@@ -2,8 +2,8 @@ from celery import Celery
 from pottery import Redlock
 from redis import Redis
 from pottery import RedisList
-from joblib import load
-import numpy as np
+# from joblib import load
+# import numpy as np
 
 # # COMENTAR EN COLIBRI
 # try:
@@ -31,7 +31,7 @@ import numpy as np
 # output_details = interpreter.get_output_details()
 
 
-MEASUREMENTS_TO_GROUP = 16
+MEASUREMENTS_TO_GROUP = 3
 
 app = Celery('tasks', broker='redis://localhost')
 redis = Redis.from_url('redis://localhost:6379/1')
@@ -58,22 +58,22 @@ def process_measurment_list(measurements_list):
 	print(measurements_list)
 
 
-@app.task
-def pre_process_measurements(raw_measurements, measurements):
-	colibri_scaler = load('scaler.sklearn')
-	colibri_scaler.transform(measurements)
-	inference_measurements.delay(raw_measurements, measurements)
+# @app.task
+# def pre_process_measurements(raw_measurements, measurements):
+# 	colibri_scaler = load('scaler.sklearn')
+# 	colibri_scaler.transform(measurements)
+# 	inference_measurements.delay(raw_measurements, measurements)
 
-@app.task
-def inference_measurements(raw_measurements, measurements):
-	global interpreter
-	
-	interpreter.set_tensor(input_details[0]['index'], input_data)
+# @app.task
+# def inference_measurements(raw_measurements, measurements):
+# 	global interpreter
 
-    interpreter.invoke()
+# 	interpreter.set_tensor(input_details[0]['index'], input_data)
 
-    output_data = interpreter.get_tensor(output_details[0]['index'])
+# 	interpreter.invoke()
 
-    # Calculo de mae
-    mae = np.mean(np.abs(output_data-input_data[-1]))
-    anomaly = mae > anomaly_threshold
+# 	output_data = interpreter.get_tensor(output_details[0]['index'])
+
+# 	# Calculo de mae
+# 	mae = np.mean(np.abs(output_data-input_data[-1]))
+# 	anomaly = mae > anomaly_threshold
