@@ -1,7 +1,7 @@
 from celery import Celery
-from pottery import Redlock
+# from pottery import Redlock
 from redis import Redis
-f#rom pottery import RedisList
+#from pottery import RedisList
 # from joblib import load
 # import numpy as np
 
@@ -41,7 +41,7 @@ def process_new_measurement(measurements):
 	global redis, MEASUREMENTS_TO_GROUP
 	# lock = Redlock(key='process_new_measurement', masters={redis})
 	# with lock:
-	measurements_list = RedisList(redis=redis, key='measurements_list')
+	measurements_list =  [] #RedisList(redis=redis, key='measurements_list')
 	measurements_list += [measurements]
 	valid = True
 	if len(measurements_list) > MEASUREMENTS_TO_GROUP:
