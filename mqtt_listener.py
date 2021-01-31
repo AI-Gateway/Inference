@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 client_id = machine_id
 hardware_serial_numbers = ['bc33acfffe1b3bbc']
-network_id = 'ai-gateway'
+network_id = 'aigateway'
 
 class MQTTGrouper:
 	def __init__(self, host, port, machine_id, hardware_serial_numbers, network_id, logger):
