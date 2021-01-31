@@ -112,7 +112,7 @@ class MQTTGrouper:
 
 	def mqtt_receive(self, topic, payload, qos):
 		self.logger.info("Received a message at {}:{} with payload: {}".format(topic,qos,payload))
-		payload = payload.decode('utf-8')
+		payload = payload
 		date = self.get_report_date(payload)
 		device = topic.split('/')[-3]
 
