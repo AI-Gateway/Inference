@@ -106,7 +106,7 @@ class MQTTGrouper:
 	def dates_process_complete_dates(self, dates):
 		dates.sort()
 		for date in dates:
-			self.logger.info('MQTT-Grouper-{} sending date {} with data: {}'.format(self.machine_id,date,self.measurement_grouper[date]))
+			self.logger.info('MQTT-Grouper-{} sending date {}'.format(self.machine_id,date))
 			# TODO: Send measurement group to celery or task distributer.
 			# process_new_measurement.delay({date:self.measurement_grouper[date]})
 			self.last_sent_date = date
