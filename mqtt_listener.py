@@ -3,7 +3,7 @@ import logging
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
-from tasks import process_new_measurement
+# from tasks import process_new_measurement
 from Report_pb2 import Report
 
 measurement_grouper = {}
@@ -17,7 +17,7 @@ logging.basicConfig(
     )
 logger = logging.getLogger(__name__)
 client_id = machine_id
-hardware_serial_numbers = ['bc33acfffe1b3bbc']
+hardware_serial_numbers = ['bc33acfffe1b3bbc', 'bc33acfffe1b3b29']
 network_id = 'aigateway'
 
 class MQTTGrouper:
@@ -108,7 +108,7 @@ class MQTTGrouper:
 		for date in dates:
 			self.logger.info('MQTT-Grouper-{} sending date {} with data: {}'.format(self.machine_id,date,self.measurement_grouper[date]))
 			# TODO: Send measurement group to celery or task distributer.
-			process_new_measurement.delay({date:self.measurement_grouper[date]})
+			# process_new_measurement.delay({date:self.measurement_grouper[date]})
 			self.last_sent_date = date
 			del self.measurement_grouper[date]
 			del self.dates_last_update[date]
