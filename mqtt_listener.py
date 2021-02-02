@@ -4,6 +4,7 @@ from time import sleep
 from datetime import datetime
 from datetime import timedelta
 from tasks import process_new_measurement
+from Report_pb2 import Report
 
 measurement_grouper = {}
 machine_id = 111
@@ -61,8 +62,11 @@ class MQTTGrouper:
 
 
 	def get_report_date(self, payload):
-		# Should extract date from payload
-		return datetime.now().isoformat()
+		report = Report()
+		report.ParseFromString(payload)
+		timestamp = datetime.datetime.utcfromtimestamp(int(report.timestamp)+0x5e400000).strftime('%Y-%m-%d %H:%M:%S') + '+0000'
+		return timestamp
+		# return datetime.now().isoformat()
 
 	def dates_clean_stale(self):
 		current = datetime.now()
