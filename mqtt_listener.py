@@ -64,7 +64,7 @@ class MQTTGrouper:
 	def get_report_date(self, payload):
 		report = Report()
 		report.ParseFromString(payload)
-		timestamp = datetime.datetime.utcfromtimestamp(int(report.timestamp)+0x5e400000).strftime('%Y-%m-%d %H:%M:%S') + '+0000'
+		timestamp = datetime.utcfromtimestamp(int(report.timestamp)+0x5e400000).strftime('%Y-%m-%d %H:%M:%S') + '+0000'
 		return timestamp
 		# return datetime.now().isoformat()
 
