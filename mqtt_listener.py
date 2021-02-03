@@ -106,9 +106,9 @@ class MQTTGrouper:
 		for idx, item in enumerate(report.item):
 			if item.type in [VIBRATION_VECTOR]:
 				data = np.array([sample for sample in struct.iter_unpack(item.rawFormat, item.value)])
-		x_rms = np.sqrt(np.mean(data[:len(data)/3] ** 2))
-		y_rms = np.sqrt(np.mean(data[len(data)/3:2*len(data)/3] ** 2))
-		z_rms = np.sqrt(np.mean(data[2*len(data)/3:] ** 2))
+		x_rms = np.sqrt(np.mean(data[:len(data)//3] ** 2))
+		y_rms = np.sqrt(np.mean(data[len(data)//3:2*len(data)//3] ** 2))
+		z_rms = np.sqrt(np.mean(data[2*len(data)//3:] ** 2))
 		self.measurement_grouper[date][device] = np.mean([x_rms, y_rms, z_rms])
 		
 		self.dates_last_update[date] = datetime.now()
