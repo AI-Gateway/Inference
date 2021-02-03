@@ -106,18 +106,18 @@ class MQTTGrouper:
 		for idx, item in enumerate(report.item):
 			if item.type in [VIBRATION_VECTOR]:
 				data = np.array([sample for sample in struct.iter_unpack(item.rawFormat, item.value)])
-				#data_rms = np.zeros(3)
-				#for ax in range(3):
-				#	data_i = data[:,ax]
-				#	data_i = data_i[0:item.fs]
-				#	data_i -= np.mean(data_i)
-				#	data_i *= (1000/item.sensitivity)
-				#	data_rms[i] = np.sqrt(np.mean(data_i ** 2))
+				data_rms = np.zeros(3)
+				for ax in range(3):
+					data_i = data[:,ax]
+					data_i = data_i[0:item.fs]
+					data_i -= np.mean(data_i)
+					data_i *= (1000/item.sensitivity)
+					data_rms[i] = np.sqrt(np.mean(data_i ** 2))
 				#x_rms = np.sqrt(np.mean(data[:,0] ** 2))
 				#y_rms = np.sqrt(np.mean(data[len(data)//3:2*len(data)//3] ** 2))
 				#z_rms = np.sqrt(np.mean(data[2*len(data)//3:] ** 2))
 				#self.measurement_grouper[date][device] = np.mean([x_rms, y_rms, z_rms])
-				#self.measurement_grouper[date][device] = np.mean(data_rms)
+				self.measurement_grouper[date][device] = np.mean(data_rms)
 		
 		self.dates_last_update[date] = datetime.now()
 		return True
