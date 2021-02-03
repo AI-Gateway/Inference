@@ -98,8 +98,12 @@ class MQTTGrouper:
 			self.logger.error('MQTT-Grouper-{} received duplicate report for date {}'.format(machine_id, date))
 		
 		report = Report()
-		report.ParseFromString(payload)				
-		self.measurement_grouper[date][device] = json.loads(MessageToJson(report)) # payload
+		report.ParseFromString(payload)	
+		json_report = 	json.loads(MessageToJson(report)) # payload
+		data = np.array([sample for sample in
+                         struct.iter_unpack(report.rawFormat, report.value)])
+		self.measurement_grouper[date][device] = np.sqrt(np.mean(data ** 2))
+		
 		self.dates_last_update[date] = datetime.now()
 		return True
 
@@ -172,6 +176,7 @@ class MQTTGrouper:
 
 	def process_measurment_list(self, measurements_list):
 		# Extract values from protobuf report and take average
+		print(measurements_list)
 		print('Processing measurements...')
 
 
