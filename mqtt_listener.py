@@ -5,6 +5,9 @@ from datetime import datetime
 from datetime import timedelta
 # from tasks import process_new_measurement
 from Report_pb2 import Report
+from google.protobuf.json_format import MessageToJson
+from joblib import load
+import json
 
 measurement_grouper = {}
 machine_id = 111
@@ -19,15 +22,18 @@ logger = logging.getLogger(__name__)
 client_id = machine_id
 hardware_serial_numbers = ['bc33acfffe1b3bbc', 'bc33acfffe1b3b29']
 network_id = 'aigateway'
+measurements_to_group = 2
 
 class MQTTGrouper:
-	def __init__(self, host, port, machine_id, hardware_serial_numbers, network_id, logger):
+	def __init__(self, host, port, machine_id, hardware_serial_numbers, network_id, logger, measurements_to_group):
 		self.host = host
 		self.port = port
 		self.machine_id = machine_id
 		self.hardware_serial_numbers = hardware_serial_numbers
 		self.client_id = str(machine_id)
 		self.network_id = network_id
+		self.measurements_list = []
+		self.measurements_to_group = measurements_to_group
 		self.client = mqtt.Client(client_id=str(client_id), userdata={
             "host": host,
             "port": port,
@@ -91,7 +97,9 @@ class MQTTGrouper:
 		if device in self.measurement_grouper[date]:
 			self.logger.error('MQTT-Grouper-{} received duplicate report for date {}'.format(machine_id, date))
 		
-		self.measurement_grouper[date][device] = payload
+		report = Report()
+        	report.ParseFromString(payload)		
+		self.measurement_grouper[date][device] = json.loads(MessageToJson(report)) # payload
 		self.dates_last_update[date] = datetime.now()
 		return True
 
@@ -108,7 +116,7 @@ class MQTTGrouper:
 		for date in dates:
 			self.logger.info('MQTT-Grouper-{} sending date {}'.format(self.machine_id,date))
 			# TODO: Send measurement group to celery or task distributer.
-			# process_new_measurement.delay({date:self.measurement_grouper[date]})
+			self.process_new_measurement({date:self.measurement_grouper[date]})
 			self.last_sent_date = date
 			del self.measurement_grouper[date]
 			del self.dates_last_update[date]
@@ -149,9 +157,27 @@ class MQTTGrouper:
 		self.client.loop_forever()
 
 
+	def process_new_measurement(self, measurements):
+		# lock = Redlock(key='process_new_measurement', masters={redis})
+		# with lock:
+		# measurements_list =  [] #RedisList(redis=redis, key='measurements_list')
+		self.measurements_list += [measurements]
+		valid = True
+		if len(self.measurements_list) > self.measurements_to_group:
+			# TODO: Check if measurement must be added to queue and if measurement is valid
+			self.measurements_list = self.measurements_list[len(self.measurements_list)-self.measurements_to_group:]
+
+		if len(self.measurements_list) == self.measurements_to_group and valid:
+			self.process_measurment_list(list(self.measurements_list))
+
+	def process_measurment_list(self, measurements_list):
+		# Extract values from protobuf report and take average
+		print('Processing measurements...')
+
+
 
 if __name__ == '__main__':
-	grouper = MQTTGrouper(host, port, machine_id, hardware_serial_numbers, network_id, logger)
+	grouper = MQTTGrouper(host, port, machine_id, hardware_serial_numbers, network_id, logger, measurements_to_group)
 	grouper.connect()
 	grouper.loop()
 
