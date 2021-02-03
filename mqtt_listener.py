@@ -35,11 +35,11 @@ class MQTTGrouper:
 		self.measurements_list = []
 		self.measurements_to_group = measurements_to_group
 		self.client = mqtt.Client(client_id=str(client_id), userdata={
-            "host": host,
-            "port": port,
-        }, clean_session=False)
+			"host": host,
+			"port": port,
+		}, clean_session=False)
 		self.client.on_message = lambda client, userdata, message: \
-		            self.mqtt_receive(message.topic, message.payload, message.qos)
+					self.mqtt_receive(message.topic, message.payload, message.qos)
 
 		self.client.on_disconnect = self.mqtt_reconnect
 		self.logger = logger
@@ -98,7 +98,7 @@ class MQTTGrouper:
 			self.logger.error('MQTT-Grouper-{} received duplicate report for date {}'.format(machine_id, date))
 		
 		report = Report()
-        	report.ParseFromString(payload)		
+		report.ParseFromString(payload)				
 		self.measurement_grouper[date][device] = json.loads(MessageToJson(report)) # payload
 		self.dates_last_update[date] = datetime.now()
 		return True
