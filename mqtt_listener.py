@@ -9,6 +9,7 @@ from google.protobuf.json_format import MessageToJson
 from joblib import load
 import json
 import numpy as np
+import struct
 
 measurement_grouper = {}
 machine_id = 111
