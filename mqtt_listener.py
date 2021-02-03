@@ -108,7 +108,7 @@ class MQTTGrouper:
 				data = np.array([sample for sample in struct.iter_unpack(item.rawFormat, item.value)])
 				data_rms = np.zeros(3)
 				for ax in range(3):
-					data_i = data[:,i]
+					data_i = data[:,ax]
 					data_i = data_i[0:item.fs]
 					data_i -= np.mean(data_i)
 					data_i *= (1000/item.sensitivity)
