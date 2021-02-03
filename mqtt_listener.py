@@ -10,6 +10,7 @@ from joblib import load
 import json
 import numpy as np
 import struct
+from MeasurementEnums_pb2 import VIBRATION_VECTOR
 
 measurement_grouper = {}
 machine_id = 111
