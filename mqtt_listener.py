@@ -8,6 +8,7 @@ from Report_pb2 import Report
 from google.protobuf.json_format import MessageToJson
 from joblib import load
 import json
+import numpy as np
 
 measurement_grouper = {}
 machine_id = 111
