@@ -113,7 +113,7 @@ class MQTTGrouper:
 					data_i = data_i[0:item.fs]
 					data_i -= np.mean(data_i)
 					data_i *= (1000/item.sensitivity)
-					data_rms[i] = np.sqrt(np.mean(data_i ** 2))
+					data_rms[ax] = np.sqrt(np.mean(data_i ** 2))
 				#x_rms = np.sqrt(np.mean(data[:,0] ** 2))
 				#y_rms = np.sqrt(np.mean(data[len(data)//3:2*len(data)//3] ** 2))
 				#z_rms = np.sqrt(np.mean(data[2*len(data)//3:] ** 2))
