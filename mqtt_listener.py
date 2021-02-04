@@ -229,10 +229,10 @@ class MQTTGrouper:
 		# input_data = np.zeros([1,2,2])
 		input_data = np.zeros(input_shape, dtype=np.float32)
 		for i,date in enumerate(measurements_list):
-		    for j,x in enumerate(list(date.values())[0].values()):
-			input_data[0,i,j] = x
-		data = np.zeros(input_shape)
+			for j,x in enumerate(list(date.values())[0].values()):
+				input_data[0,i,j] = x
 
+		# data = np.zeros(input_shape)
 		# input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
 		interpreter.set_tensor(input_details[0]['index'], input_data)
 
