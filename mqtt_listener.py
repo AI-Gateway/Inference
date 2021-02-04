@@ -50,8 +50,15 @@ class MQTTGrouper:
 		self.measurement_grouper = {}
 		self.dates_last_update = {}
 		self.last_sent_date = None
+		self.min_values = []
+		self.max_values = []
 
 
+	def minMaxScaler(X, min_values, max_values):
+		for i in range(X.shape[2]):
+			X[0,:,i] = (X[0,:,i] - min_values[i]) / (max_values[i] - min_values[i])
+
+	
 	def connect(self):
 		exit = False
 		while not exit:
@@ -69,6 +76,9 @@ class MQTTGrouper:
 			self.logger.info('MQTT-Grouper-{} subscribed to {}'.format(machine_id, topic))
 			self.client.subscribe(topic, 2)
 
+		with open('minMaxScaler.aigateway') as fp:
+			self.max_values = [float(x) for x in fp.readline().split(',')]
+			self.min_values = [float(x) for x in fp.readline().split(',')]
 
 
 	def get_report_date(self, payload):
@@ -236,8 +246,11 @@ class MQTTGrouper:
 		# input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
 
 		# Scale data
-		colibri_scaler = load('scaler.sklearn')
-		colibri_scaler.transform(input_data)
+		#colibri_scaler = load('scaler.sklearn')
+		#colibri_scaler.transform(input_data)
+		self.minMaxScaler(input_data, self.min_values, self.max_values)
+
+		# Inference
 		interpreter.set_tensor(input_details[0]['index'], input_data)
 
 		interpreter.invoke()
