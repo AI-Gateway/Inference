@@ -209,9 +209,9 @@ class MQTTGrouper:
 
 		# Load the TFLite model and allocate tensors.
 		if COLIBRI is True:
-		    interpreter = tflite.Interpreter(model_path="../model.tflite")
+		    interpreter = tflite.Interpreter(model_path="model.tflite")
 		else:
-		    interpreter = tf.lite.Interpreter(model_path="../model.tflite")
+		    interpreter = tf.lite.Interpreter(model_path="model.tflite")
 
 
 		interpreter.allocate_tensors()
