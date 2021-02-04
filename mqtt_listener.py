@@ -54,7 +54,7 @@ class MQTTGrouper:
 		self.max_values = []
 
 
-	def minMaxScaler(X, min_values, max_values):
+	def minMaxScaler(self, X, min_values, max_values):
 		for i in range(X.shape[2]):
 			X[0,:,i] = (X[0,:,i] - min_values[i]) / (max_values[i] - min_values[i])
 
