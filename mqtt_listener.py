@@ -220,10 +220,20 @@ class MQTTGrouper:
 		input_details = interpreter.get_input_details()
 		output_details = interpreter.get_output_details()
 
-		# Test the model on random input data.
+		# Test the model on measurements input data.
 		input_shape = input_details[0]['shape']
 		print(input_shape)
-		input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
+
+		# Format measurement list to input shape
+		# meas = [{'date1': {'sen1': 1, 'sen2': 2}},{'date2': {'sen1': 1.5, 'sen2': 2.5}}]
+		# input_data = np.zeros([1,2,2])
+		input_data = np.zeros(input_shape, dtype=np.float32)
+		for i,date in enumerate(measurements_list):
+		    for j,x in enumerate(list(date.values())[0].values()):
+			input_data[0,i,j] = x
+		data = np.zeros(input_shape)
+
+		# input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
 		interpreter.set_tensor(input_details[0]['index'], input_data)
 
 		interpreter.invoke()
@@ -237,6 +247,11 @@ class MQTTGrouper:
 		print('Process:', input_data, 'in')
 		print((end - start)*1000,'ms')
 		print('with output',output_data)
+
+		# Calculo de mae
+		mae = np.mean(np.abs(output_data-input_data[0,-1]))
+		anomaly = mae > 0.7
+		print('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0]),anomaly))
 
 
 
