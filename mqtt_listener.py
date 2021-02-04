@@ -10,6 +10,7 @@ from joblib import load
 import json
 import numpy as np
 import struct
+import time
 from MeasurementEnums_pb2 import VIBRATION_VECTOR
 
 measurement_grouper = {}
@@ -194,6 +195,49 @@ class MQTTGrouper:
 		# Extract values from protobuf report and take average
 		print(measurements_list)
 		print('Processing measurements...')
+		# COMENTAR EN COLIBRI
+		try:
+		    print('Attempting colibri import')
+		    import tflite_runtime.interpreter as tflite
+		    COLIBRI=True
+		    print('Succeded, running on colibri platform')
+		except Exception as e:
+		    import tensorflow as tf
+		    COLIBRI=False
+		    print('Failed, running on full platform')
+
+
+		# Load the TFLite model and allocate tensors.
+		if COLIBRI is True:
+		    interpreter = tflite.Interpreter(model_path="../model.tflite")
+		else:
+		    interpreter = tf.lite.Interpreter(model_path="../model.tflite")
+
+
+		interpreter.allocate_tensors()
+
+		# Get input and output tensors.
+		input_details = interpreter.get_input_details()
+		output_details = interpreter.get_output_details()
+
+		# Test the model on random input data.
+		input_shape = input_details[0]['shape']
+		print(input_shape)
+		input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
+		interpreter.set_tensor(input_details[0]['index'], input_data)
+
+		interpreter.invoke()
+
+		# The function `get_tensor()` returns a copy of the tensor data.
+		# Use `tensor()` in order to get a pointer to the tensor.
+
+		start = time.time()
+		output_data = interpreter.get_tensor(output_details[0]['index'])
+		end = time.time()
+		print('Process:', input_data, 'in')
+		print((end - start)*1000,'ms')
+		print('with output',output_data)
+
 
 
 
