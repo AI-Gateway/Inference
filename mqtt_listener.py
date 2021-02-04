@@ -251,7 +251,7 @@ class MQTTGrouper:
 		# Calculo de mae
 		mae = np.mean(np.abs(output_data-input_data[0,-1]))
 		anomaly = mae > 0.7
-		print('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0]),anomaly))
+		print('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0],anomaly))
 
 
 
