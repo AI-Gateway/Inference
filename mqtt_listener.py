@@ -234,6 +234,10 @@ class MQTTGrouper:
 
 		# data = np.zeros(input_shape)
 		# input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
+
+		# Scale data
+		colibri_scaler = load('scaler.sklearn')
+		colibri_scaler.transform(input_data)
 		interpreter.set_tensor(input_details[0]['index'], input_data)
 
 		interpreter.invoke()
