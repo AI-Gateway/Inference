@@ -36,7 +36,7 @@ class MQTTGrouper:
 		self.hardware_serial_numbers = hardware_serial_numbers
 		self.client_id = str(machine_id)
 		self.network_id = network_id
-		self.measurements_list = []
+		self.measurements_list = [{'2021-02-05 20:04:51+0000': {'bc33acfffe1b3b29': 4.944361864166737, 'bc33acfffe1b3bbc': 4.047561224704669}}, {'2021-02-05 20:08:51+0000': {'bc33acfffe1b3b29': 4.971373374836214, 'bc33acfffe1b3bbc': 4.351644868584873}}, {'2021-02-05 20:12:51+0000': {'bc33acfffe1b3b29': 4.978876937067107, 'bc33acfffe1b3bbc': 4.4078936330025655}}, {'2021-02-05 20:16:51+0000': {'bc33acfffe1b3b29': 5.094096137239828, 'bc33acfffe1b3bbc': 4.504038118055039}}, {'2021-02-05 20:20:51+0000': {'bc33acfffe1b3b29': 5.121054475564105, 'bc33acfffe1b3bbc': 4.269319428850096}}, {'2021-02-05 20:24:51+0000': {'bc33acfffe1b3b29': 5.0984439764642655, 'bc33acfffe1b3bbc': 4.296945490271843}}, {'2021-02-05 20:28:51+0000': {'bc33acfffe1b3b29': 4.899074141772485, 'bc33acfffe1b3bbc': 4.078140561113334}}, {'2021-02-05 20:32:51+0000': {'bc33acfffe1b3b29': 5.2363356002015085, 'bc33acfffe1b3bbc': 4.5982004034632835}}, {'2021-02-05 20:36:51+0000': {'bc33acfffe1b3b29': 5.021669394311739, 'bc33acfffe1b3bbc': 4.591848985015221}}, {'2021-02-05 20:40:51+0000': {'bc33acfffe1b3b29': 4.93103502849748, 'bc33acfffe1b3bbc': 4.095602220245687}}, {'2021-02-05 20:44:51+0000': {'bc33acfffe1b3b29': 5.1752667938019155, 'bc33acfffe1b3bbc': 4.337177955503193}}, {'2021-02-05 20:48:51+0000': {'bc33acfffe1b3b29': 5.148468203304066, 'bc33acfffe1b3bbc': 4.355532899786829}}, {'2021-02-05 20:52:51+0000': {'bc33acfffe1b3b29': 4.767974356705115, 'bc33acfffe1b3bbc': 3.9031349182737465}}, {'2021-02-05 20:56:51+0000': {'bc33acfffe1b3b29': 4.730049347214426, 'bc33acfffe1b3bbc': 3.9982868471022215}}, {'2021-02-05 21:00:51+0000': {'bc33acfffe1b3b29': 4.938351372829005, 'bc33acfffe1b3bbc': 4.322176441372153}}, {'2021-02-05 21:04:51+0000': {'bc33acfffe1b3b29': 4.882837548280008, 'bc33acfffe1b3bbc': 3.9262821238051813}}]
 		self.measurements_to_group = measurements_to_group
 		self.client = mqtt.Client(client_id=str(client_id), userdata={
 			"host": host,
@@ -239,7 +239,7 @@ class MQTTGrouper:
 		# input_data = np.zeros([1,2,2])
 		input_data = np.zeros(input_shape, dtype=np.float32)
 		for i,date in enumerate(measurements_list):
-			for j,serial in self.hardware_serial_numbers:
+			for j,serial in enumerate(self.hardware_serial_numbers):
 				input_data[0,i,j] = list(date.values())[0][serial]
 			# for j,x in enumerate(list(date.values())[0].values()):
 			# 	input_data[0,i,j] = x
