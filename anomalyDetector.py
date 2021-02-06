@@ -174,7 +174,7 @@ class MQTTGrouper:
 	def mqtt_ondisconnect(self, client, userdata, rc):
 		self.logger.error('MQTT-Grouper-{} disconnected'.format(machine_id))
 
-	def mqtt_onconnect(self, client, userdata, rc):
+	def mqtt_onconnect(self, client, userdata, flags, rc):
 		self.logger.info('MQTT-Grouper-{} connected'.format(machine_id))
 		for serial in self.hardware_serial_numbers:
 			topic = 'networks/{}/devices/wivers/{}/uq/q'.format(network_id, serial)
