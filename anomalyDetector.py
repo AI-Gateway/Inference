@@ -205,17 +205,17 @@ class MQTTGrouper:
 	def process_measurment_list(self, measurements_list):
 		# Extract values from protobuf report and take average
 		print(measurements_list)
-		print('Processing measurements...')
+		self.logger.info('Processing measurements...')
 		# COMENTAR EN COLIBRI
 		try:
-		    print('Attempting colibri import')
+		    self.logger.info('Attempting colibri import')
 		    import tflite_runtime.interpreter as tflite
 		    COLIBRI=True
-		    print('Succeded, running on colibri platform')
+		    self.logger.info('Succeded, running on colibri platform')
 		except Exception as e:
 		    import tensorflow as tf
 		    COLIBRI=False
-		    print('Failed, running on full platform')
+		    self.logger.info('Failed, running on full platform')
 
 
 		# Load the TFLite model and allocate tensors.
@@ -264,14 +264,14 @@ class MQTTGrouper:
 		start = time.time()
 		output_data = interpreter.get_tensor(output_details[0]['index'])
 		end = time.time()
-		print('Process:', input_data, 'in')
-		print((end - start)*1000,'ms')
-		print('with output',output_data)
+		self.logger.info('Process:', input_data, 'in')
+		self.logger.info((end - start)*1000,'ms')
+		self.logger.info('with output',output_data)
 
 		# Calculo de mae
 		mae = np.mean(np.abs(output_data-input_data[0,-1]))
-		anomaly = mae > 0.3821387717979858 # 0.3681974401380784
-		print('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0],anomaly))
+		anomaly = mae > 0.3681974401380784 # 0.3821387717979858
+		self.logger.info('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0],anomaly))
 
 		def blinkLed(ledNumber):
 			path = "/sys/class/leds/led{}/brightness".format(ledNumber)
