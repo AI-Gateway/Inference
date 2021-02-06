@@ -270,7 +270,10 @@ class MQTTGrouper:
 
 		# Calculo de mae
 		mae = np.mean(np.abs(output_data-input_data[0,-1]))
-		anomaly = mae > 0.3681974401380784 # 0.3821387717979858
+		threshold = 0.3681974401380784 # 0.3821387717979858
+		anomaly = mae > threshold
+		score = mae / threshold
+
 		self.logger.info('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0],anomaly))
 
 		def blinkLed(ledNumber):
@@ -288,6 +291,8 @@ class MQTTGrouper:
 			blinkLed(3)
 
 		self.client.publish("{}/anomaly".format(prefix),int(anomaly),qos=1)
+		self.client.publish("{}/score".format(prefix),score,qos=1)
+
 
 
 
