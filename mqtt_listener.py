@@ -13,10 +13,16 @@ import struct
 import time
 from MeasurementEnums_pb2 import VIBRATION_VECTOR
 
+
+
 measurement_grouper = {}
 machine_id = 111
 host = '127.0.0.1'
 port = 1883
+platSerial = "06416153"
+networkName = "aigateway"
+prefix = "networks/{}/devices/gateways/gw-{}".format(networkName,platSerial)
+
 
 logging.basicConfig(
         level=logging.DEBUG,
@@ -271,6 +277,22 @@ class MQTTGrouper:
 		mae = np.mean(np.abs(output_data-input_data[0,-1]))
 		anomaly = mae > 0.3821387717979858 # 0.3681974401380784
 		print('Result at {}: Anomaly {} '.format(list(measurements_list[-1].keys())[0],anomaly))
+
+		def blinkLed(ledNumber):
+			path = "/sys/class/leds/led{}/brightness".format(ledNumber)
+			subprocess.call("echo 1 > " + path +
+							"&& sleep 0.5 &&"
+							"echo 0 > " + path +
+							"&& sleep 0.5 &&"
+							"echo 1 > " + path +
+							"&& sleep 0.5 &&"
+							"echo 0 > " + path, shell=True)
+		if anomaly:
+			blinkLed(1)
+		else:
+			blinkLed(3)
+
+		client.publish("{}/anomaly".format(prefix),int(anomaly),qos=1)
 
 
 
