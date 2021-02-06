@@ -51,7 +51,8 @@ class MQTTGrouper:
 		self.client.on_message = lambda client, userdata, message: \
 					self.mqtt_receive(message.topic, message.payload, message.qos)
 
-		self.client.on_disconnect = self.mqtt_reconnect
+		self.client.on_disconnect = self.mqtt_ondisconnect
+		self.client.on_connect = self.mqtt_onconnect
 		self.logger = logger
 		self.measurement_grouper = {}
 		self.dates_last_update = {}
@@ -70,17 +71,11 @@ class MQTTGrouper:
 		while not exit:
 			try:
 				self.client.connect(host, port)
-				self.logger.info('MQTT-Grouper-{} connected'.format(machine_id))
 				exit = True
 			except Exception as e:
 				self.logger.error('MQTT-Grouper-{} connect error, retrying in 10 seconds'.format(machine_id))
 				self.logger.exception(e)
 				sleep(10)
-
-		for serial in self.hardware_serial_numbers:
-			topic = 'networks/{}/devices/wivers/{}/uq/q'.format(network_id, serial)
-			self.logger.info('MQTT-Grouper-{} subscribed to {}'.format(machine_id, topic))
-			self.client.subscribe(topic, 2)
 
 		with open('minMaxScaler.aigateway') as fp:
 			self.max_values = [float(x) for x in fp.readline().split(',')]
@@ -170,24 +165,23 @@ class MQTTGrouper:
 		if valid is not True:
 			return
 
-		
-
 		complete_dates = self.dates_check_complete()
 
 		self.dates_process_complete_dates(complete_dates)
 
 
 
-	def mqtt_reconnect(self, client, userdata, rc):
-		reconnected = False
+	def mqtt_ondisconnect(self, client, userdata, rc):
+		self.logger.error('MQTT-Grouper-{} disconnected'.format(machine_id))
 
-		while not reconnected:
-			try:
-				self.client.reconnect()
-				reconnected = True
-			except Exception as e:
-				self.logger.error('MQTT-Grouper-{} reconnect error, retrying in 10 seconds'.format(machine_id))
-				sleep(10)
+	def mqtt_onconnect(self, client, userdata, rc):
+		self.logger.info('MQTT-Grouper-{} connected'.format(machine_id))
+		for serial in self.hardware_serial_numbers:
+			topic = 'networks/{}/devices/wivers/{}/uq/q'.format(network_id, serial)
+			self.logger.info('MQTT-Grouper-{} subscribed to {}'.format(machine_id, topic))
+			self.client.subscribe(topic, 2)
+
+
 
 	def loop(self):
 		self.logger.info('MQTT-Grouper-{} loop starting'.format(machine_id))
