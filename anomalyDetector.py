@@ -287,7 +287,7 @@ class MQTTGrouper:
 		else:
 			blinkLed(3)
 
-		client.publish("{}/anomaly".format(prefix),int(anomaly),qos=1)
+		self.client.publish("{}/anomaly".format(prefix),int(anomaly),qos=1)
 
 
 
