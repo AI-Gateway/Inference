@@ -264,9 +264,9 @@ class MQTTGrouper:
 		start = time.time()
 		output_data = interpreter.get_tensor(output_details[0]['index'])
 		end = time.time()
-		self.logger.info('Process:', input_data, 'in')
-		self.logger.info((end - start)*1000,'ms')
-		self.logger.info('with output',output_data)
+		self.logger.info('Process: {} in'.format(input_data))
+		self.logger.info('{} ms'.format((end - start)*1000))
+		self.logger.info('with output {}'.format(output_data))
 
 		# Calculo de mae
 		mae = np.mean(np.abs(output_data-input_data[0,-1]))
