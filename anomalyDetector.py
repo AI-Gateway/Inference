@@ -3,6 +3,7 @@ import logging
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
+import subprocess
 # from tasks import process_new_measurement
 from Report_pb2 import Report
 from google.protobuf.json_format import MessageToJson
