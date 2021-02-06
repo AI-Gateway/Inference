@@ -27,7 +27,7 @@ prefix = "networks/{}/devices/gateways/gw-{}".format(networkName,platSerial)
 
 logging.basicConfig(
         level=logging.DEBUG,
-        format="%(asctime)-15s %(levelname)-8s %(message)s",
+        format="%(levelname)-8s %(message)s",
     )
 logger = logging.getLogger(__name__)
 client_id = machine_id
