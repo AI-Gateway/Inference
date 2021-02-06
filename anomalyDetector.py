@@ -254,14 +254,11 @@ class MQTTGrouper:
 		self.minMaxScaler(input_data, self.min_values, self.max_values)
 
 		# Inference
+		start = time.time()
 		interpreter.set_tensor(input_details[0]['index'], input_data)
-
 		interpreter.invoke()
-
 		# The function `get_tensor()` returns a copy of the tensor data.
 		# Use `tensor()` in order to get a pointer to the tensor.
-
-		start = time.time()
 		output_data = interpreter.get_tensor(output_details[0]['index'])
 		end = time.time()
 		self.logger.info('Process: {} in'.format(input_data))
